@@ -1,0 +1,29 @@
+hash: d1fe7e16cd0cc7446ce2742f11aea585cc3b738b9196c115b8afb7c7f2371485
+updated: 2016-11-02T01:39:38.704185006-04:00
+imports:
+- name: github.com/dgrijalva/jwt-go
+  version: d2709f9f1f31ebcda9651b03077758c1f3a0018c
+- name: github.com/go-kit/kit
+  version: 6fb874ce59bb45b2f60ee3d289829db02142ecc6
+  subpackages:
+  - endpoint
+  - log
+  - transport/http
+- name: github.com/go-logfmt/logfmt
+  version: d4327190ff838312623b09bfeb50d7c93c8d9c1d
+- name: github.com/go-stack/stack
+  version: 100eb0c0a9c5b306ca2fb4f165df21d80ada4b82
+- name: github.com/gorilla/context
+  version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
+- name: github.com/gorilla/mux
+  version: 0eeaf8392f5b04950925b8a69fe70f110fa7cbfc
+- name: github.com/kr/logfmt
+  version: b84e30acd515aadc4b783ad4ff83aff3299bdfe0
+- name: github.com/pkg/errors
+  version: 645ef00459ed84a119197bfb8d8205042c6df63d
+- name: golang.org/x/net
+  version: 4d38db76854b199960801a1734443fd02870d7e1
+  subpackages:
+  - context
+  - context/ctxhttp
+testImports: []

@@ -1,0 +1,17 @@
+package: github.com/go-elm/account
+import:
+- package: github.com/dgrijalva/jwt-go
+  version: ^3.0.0
+- package: github.com/go-kit/kit
+  version: ^0.2.0
+  subpackages:
+  - endpoint
+  - log
+  - transport/http
+- package: github.com/gorilla/mux
+  version: ^1.1.0
+- package: github.com/pkg/errors
+  version: ^0.8.0
+- package: golang.org/x/net
+  subpackages:
+  - context
