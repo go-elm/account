@@ -8,10 +8,10 @@ module LoginPage
         , view
         )
 
-import HttpBuilder as Http
+import Http
 import Task exposing (Task)
 import Json.Encode
-import Json.Decode exposing ((:=), Decoder)
+import Json.Decode exposing (field, Decoder)
 import Html
     exposing
         ( Html
@@ -32,7 +32,7 @@ import Html.Attributes
         ( placeholder
         , value
         , class
-        , type'
+        , type_
         , disabled
         )
 
@@ -85,8 +85,7 @@ type Msg
     | SetUsername String
     | SetPassword String
     | SubmitLogin
-    | SubmitFail (Http.Error String)
-    | SubmitSucceed (Http.Response String)
+    | SubmitResult (Result Http.Error String)
 
 
 update : Context Msg -> Msg -> Model -> ( Model, Cmd Msg )
@@ -122,39 +121,37 @@ update ctx msg model =
                         , ( "password", Json.Encode.string loginForm.password )
                         ]
 
-                loginUser : Task (Http.Error String) (Http.Response String)
                 loginUser =
-                    Http.post ctx.url
-                        |> Http.withHeader "Content-Type" "application/json"
-                        |> Http.withJsonBody encodeUser
-                        |> Http.send (Http.stringReader) Http.stringReader
+                    Http.request
+                        { method = "POST"
+                        , headers = []
+                        , url = ctx.url
+                        , body = (Http.jsonBody encodeUser)
+                        , expect = Http.expectString
+                        , timeout = Nothing
+                        , withCredentials = False
+                        }
 
-                login : Cmd Msg
                 login =
-                    Task.perform SubmitFail SubmitSucceed loginUser
+                    Http.send SubmitResult <| loginUser
             in
                 model ! [ login ]
 
-        SubmitFail err ->
-            let
-                response =
-                    case err of
-                        Http.BadResponse resp ->
-                            resp.data
-
-                        _ ->
-                            -- TODO
-                            "unknown error"
-            in
-                { model | errorResponse = response } ! []
-
-        SubmitSucceed response ->
+        SubmitResult (Ok response) ->
             case ctx.onSuccess of
                 Nothing ->
                     { model | errorResponse = "Success" } ! []
 
                 Just cmdMsg ->
                     { model | errorResponse = "Success" } ! [ cmdMsg ]
+
+        SubmitResult (Err err) ->
+            case err of
+                Http.BadStatus response ->
+                    { model | errorResponse = response.status.message } ! []
+
+                _ ->
+                    model ! []
 
 
 
@@ -191,7 +188,7 @@ view model =
                 , value model.loginForm.password
                 , onInput SetPassword
                 , class "loginPage__form__password"
-                , type' "password"
+                , type_ "password"
                 ]
                 []
 

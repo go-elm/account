@@ -1,6 +1,5 @@
 module Main exposing (Model, init, update, view, subscriptions)
 
-import Html.App as App
 import Html exposing (Html, div)
 import LoginPage as Login
 
@@ -8,9 +7,9 @@ import LoginPage as Login
 -- MAIN
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
-    App.program
+    Html.program
         { init = ( init, Cmd.none )
         , update = update
         , view = view
@@ -75,6 +74,6 @@ view : Model -> Html Msg
 view model =
     let
         login =
-            App.map LoginMsg <| Login.view model.login
+            Html.map LoginMsg <| Login.view model.login
     in
         div [] [ login ]
