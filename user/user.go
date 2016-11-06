@@ -29,6 +29,10 @@ type User struct {
 	Enabled bool
 }
 
+func (u User) ValidatePassword(plaintext string, validation ValidationFunc) error {
+	return validation(plaintext, u.Password, u.Salt)
+}
+
 // Payload has fields used in a request to create
 // or update a user.
 type Payload struct {
@@ -62,6 +66,9 @@ func (p Payload) User(passwordFn PasswordFunc) (*User, error) {
 // PasswordFunc is a function used to set the user password.
 type PasswordFunc func(plaintext string) (salt string, password []byte, err error)
 
+// ValidationFunc can validate a password against a hashed one
+type ValidationFunc func(plaintext string, hashed []byte, salt string) error
+
 // Service defines methods used to manage users in an application.
 type Service interface {
 	// NewUser creates a new user from a UserPayload.
@@ -79,7 +86,7 @@ type Service interface {
 
 // Datastore manages users in a datastore.
 type Datastore interface {
-	// CreateUser creates a new user.
+	// Create creates a new user.
 	// UserExistsError is returned if a user already exists.
 	Create(u User) (user *User, err error)
 
@@ -89,6 +96,12 @@ type Datastore interface {
 
 	// User retrieves a single user from the datastore.
 	User(id ID) (user *User, err error)
+
+	// UserByEmail retrieves a single user from the datastore.
+	UserByEmail(email string) (user *User, err error)
+
+	// UserByUsername retrieves a single user from the datastore.
+	UserByUsername(username string) (user *User, err error)
 
 	// Users retrieves a list of users from the datastore.
 	Users() (users []User, err error)

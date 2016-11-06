@@ -35,7 +35,7 @@ func (db *inmem) Create(u user.User) (*user.User, error) {
 	return &u, nil
 }
 
-func (db *inmem) Updateuser(u user.User) error {
+func (db *inmem) Update(u user.User) error {
 	db.mtx.Lock()
 	defer db.mtx.Unlock()
 
@@ -57,6 +57,36 @@ func (db *inmem) User(id user.ID) (*user.User, error) {
 		}
 	}
 	return u, nil
+}
+
+func (db *inmem) UserByEmail(email string) (*user.User, error) {
+	db.mtx.Lock()
+	defer db.mtx.Unlock()
+
+	for _, u := range db.users {
+		if u.Email == email {
+			return u, nil
+		}
+	}
+	return nil, &notFoundError{
+		Username: email,
+	}
+
+}
+
+func (db *inmem) UserByUsername(username string) (*user.User, error) {
+	db.mtx.Lock()
+	defer db.mtx.Unlock()
+
+	for _, u := range db.users {
+		if u.Username == username {
+			return u, nil
+		}
+	}
+	return nil, &notFoundError{
+		Username: username,
+	}
+
 }
 
 func (db *inmem) Users() ([]user.User, error) {
@@ -82,6 +112,9 @@ type notFoundError struct {
 }
 
 func (e *notFoundError) Error() string {
+	if e.ID == "" {
+		return fmt.Sprintf("user %s not found in inmem datastore.", e.Username)
+	}
 	return fmt.Sprintf("user %s, with id %s not found in inmem datastore.", e.Username, e.ID)
 }
 
