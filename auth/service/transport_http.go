@@ -11,18 +11,13 @@ import (
 	"golang.org/x/net/context"
 )
 
-var (
-	// errBadRoute is used for mux errors
-	errBadRoute = errors.New("bad route")
-)
-
 func MakeHTTPHandler(ctx context.Context, endpoints Endpoints, logger kitlog.Logger) http.Handler {
 	options := []kithttp.ServerOption{
 		kithttp.ServerErrorEncoder(errorEncoder),
 		kithttp.ServerErrorLogger(logger),
 	}
 	m := http.NewServeMux()
-	m.Handle("/login", kithttp.NewServer(
+	m.Handle("/api/v1/account/login", kithttp.NewServer(
 		ctx,
 		endpoints.Login,
 		DecodeHTTPLoginRequest,
@@ -47,7 +42,9 @@ func EncodeHTTPGenericResponse(ctx context.Context, w http.ResponseWriter, respo
 		errorEncoder(ctx, e.error(), w)
 		return nil
 	}
-	return json.NewEncoder(w).Encode(response)
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "  ")
+	return enc.Encode(response)
 }
 
 func errorEncoder(_ context.Context, err error, w http.ResponseWriter) {

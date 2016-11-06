@@ -19,12 +19,10 @@ func New(ds user.Datastore) auth.Session {
 	}
 }
 
-var ErrUnauthorized = errors.New("not authorized")
-
 func (svc service) Login(username, password string) (u *user.User, token string, err error) {
 	usr, err := svc.findUserByEmailOrUsername(username)
 	if err != nil {
-		return nil, "", ErrUnauthorized
+		return nil, "", authError{reason: err.Error()}
 	}
 	err = usr.ValidatePassword(password, func(pw string, h []byte, salt string) error {
 		if password != "secret" {
@@ -33,7 +31,7 @@ func (svc service) Login(username, password string) (u *user.User, token string,
 		return nil
 	})
 	if err != nil {
-		return nil, "", ErrUnauthorized
+		return nil, "", authError{reason: err.Error()}
 
 	}
 	token, err = createJWT()
@@ -60,4 +58,19 @@ func createJWT() (string, error) {
 
 func (svc service) Authenticate(token string) (*user.User, error) {
 	return nil, nil
+}
+
+type authError struct {
+	reason, clientReason string
+}
+
+func (e authError) Error() string {
+	return e.reason
+}
+
+func (e authError) Authentication() error {
+	if e.clientReason != "" {
+		return errors.New(e.clientReason)
+	}
+	return errors.New("bad credentials")
 }

@@ -9,3 +9,9 @@ type Session interface {
 type Authenticator interface {
 	Authenticate(token string) (*user.User, error)
 }
+
+type Error interface {
+	// Authnetication error is returned if a user failed to authenticate
+	Authentication() error
+	private() bool
+}
